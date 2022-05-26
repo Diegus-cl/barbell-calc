@@ -1,17 +1,21 @@
 import React, { Component } from 'react';
 import Button from './components/Button';
 import TextField from './components/TextField';
+import Percentages from './components/Percentages';
 import './App.css';
 
 class App extends Component {
   constructor(props) {
     super(props);
-    this.state = {
+    this.state = this.setDefaultState();
+  }
+
+  setDefaultState() {
+    return {
       PR: "",
       barbellWeight: "",
-      tempTarget: "",
       discSet: [45, 35, 25, 15, 10, 5, 2.5],
-      targets: [],
+      targets: [''],
       barConfigurations: [],
       finalPlateSet: [],
       plateCounts: [],
@@ -21,12 +25,34 @@ class App extends Component {
     }
   }
 
+  restartCalculation = e => {
+    e.preventDefault();
+    this.setState(this.setDefaultState);
+  }
+
+  handlePercentageTextfield = e => {
+    const percentageIndex = Number(e.target.name.substr(e.target.name.indexOf('_') + 1));
+    const field = e.target.name.slice(0, e.target.name.indexOf('_'));
+    let targets = this.state.targets;
+    targets[percentageIndex] = e.target.value;
+
+    this.setState({ targets });
+  }
+
+  handlePercentageClick = e => {
+    e.preventDefault();
+
+    let targets = [...this.state.targets];
+    targets.push('');
+
+    this.setState({ targets });
+  }
+
   handleTextfield = e => {
     const field = e.target.name;
     let newState = this.state;
     newState[field] = e.target.value;
     this.setState(newState);
-    //this.setState({team: Object.assign({}, team)});
   }
 
   onSubmit = e => {
@@ -38,10 +64,6 @@ class App extends Component {
 
     newState.discSet.sort((a, b) => b - a);
     newState.targets.sort((a, b) => a - b);
-    //temp
-    newState.targets[0] = parseInt(this.state.tempTarget);
-    //end temp
-    console.log(newState);
     const targetWeights = [];
 
     newState.targets.forEach((targetPercentage, index) => {
@@ -80,56 +102,67 @@ class App extends Component {
       newState.plateCounts[x] = (newState.plateCounts[x] || 0) + 1;
     });
 
-
     newState.saved = true;
-
     this.setState(newState);
   }
 
   render() {
     const {
       PR,
-      barbellWeight,
-      tempTarget
+      barbellWeight
      } = this.state;
-    const { plateCounts, barConfigurations, errors, saving, saved } = this.state;
+    const { targets, plateCounts, barConfigurations, errors, saving, saved } = this.state;
 
     return (
       <div className="App">
         <header className="App-header">
-          CFM Barbell Calc
+          CFM Calculadora
         </header>
 
         {
           saved &&
             <div className='wrapper'>
-              Resultados
-              <div>
-                finalPlateSet
+              <h2>Equipos necesarios</h2>
+              <ul>
+                <li key={-1}>Barra de {barbellWeight} Lb</li>
                 {
                   plateCounts.map((item, index) => (
-                  <div>{index} lb: {item * 2}</div> 
+                    <li key={index}>{item * 2} discos de {index} Lb</li> 
                   ))
                 }
-              </div>
+              </ul>
+              <h2>Configuración de porcentajes</h2>
+                {
+                  barConfigurations.map((item, index) => (
+                  <div key={index}>
+                      <h3>Levantamiento al {item.percentage}%</h3>
+                      {
+                        item.accuratePercentage != item.roundPercentage ?
+                        <span>Peso redondeado: {item.roundPercentage} Lb | Real: {item.accuratePercentage} Lb</span>:
+                        <span>Peso: {item.roundPercentage} Lb</span>
+                      }
+                      <ul className='plates'>
+                      {
+                        item.plates.sort((a, b) => a - b).map((item, index) => (
+                          <li key={index}>{item}</li>
+                        ))
+                      }
+                        <li className="bar">———</li>
+                      {
+                        item.plates.sort((a, b) => b - a).map((item, index) => (
+                          <li key={index}>{item}</li>
+                        ))
+                      }
+                      </ul>
+                  </div> 
+                  ))
+                }
               
-              <div>
-                barConfigurations
-                  {
-                    barConfigurations.map((item, index) => (
-                    <div>
-                        <div>percentage: {item.percentage}%</div> 
-                        <div>accurate: {item.accuratePercentage}</div> 
-                        <div>round: {item.roundPercentage}</div> 
-                        <div>plates: {
-                          item.plates.map((i) => (
-                            <div>{i} x 2</div>
-                          ))
-                        }</div> 
-                    </div> 
-                    ))
-                  }
+              <form className='form'>
+                <div className='form__field'>
+                  <a className='App-link' onClick={this.restartCalculation} href="#">Nuevo Calculo</a>
                 </div>
+              </form>
             </div>
         }
 
@@ -161,58 +194,22 @@ class App extends Component {
                     onChange={this.handleTextfield}
                   />
 
-                  <TextField
-                    type="text"
-                    name="tempTarget"
-                    value={tempTarget}
-                    label="Porcentaje"
-                    placeholder="e.g. 80%"
-                    required={true}
-                    error={errors.tempTarget}
-                    onChange={this.handleTextfield}
-                  />
-
-                  <Button
-                    label="Agregar Porcentaje"
-                    progress={false} />
+                  <Percentages
+                    percentages={targets}
+                    onTextChange={this.handlePercentageTextfield}
+                    onClick={this.handlePercentageClick} />
               
-                  <Button
-                    label="Calcular"
-                    progress={false} />
+                  <div className='form__field'>
+                    <Button
+                      label="Calcular Total"
+                      progress={false} />
+                  </div>
                 </form>
                 
               </div>
             </section>
           </div>
         }
-
-        {/* <div>
-          finalPlateSet
-          {
-            plateCounts.map((item, index) => (
-             <div>{index} lb: {item * 2}</div> 
-            ))
-          }
-        </div>
-
-        <div>
-        barConfigurations
-          {
-            barConfigurations.map((item, index) => (
-             <div>
-                <div>percentage: {item.percentage}%</div> 
-                <div>accurate: {item.accuratePercentage}</div> 
-                <div>round: {item.roundPercentage}</div> 
-                <div>plates: {
-                  item.plates.map((i) => (
-                    <div>{i} x 2</div>
-                  ))
-                }</div> 
-             </div> 
-            ))
-          }
-        </div> */}
-    
       </div>
     );
   }

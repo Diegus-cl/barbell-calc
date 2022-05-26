@@ -64,7 +64,8 @@ const TextField = ({type, label, required, name, placeholder, value, onChange, e
     <div className={wrapperClass}>
       <div className="form__label">
         <label htmlFor={name}>{label}</label>
-        { required && <span className="input-required"> *</span> }
+        {/* { required && <span className="input-required"> *</span> } */}
+        { required && <span className="input-required"></span> }
       </div>
       { setInputType(type) }
       { error && <div className="form__field__alert">{error}</div> }
