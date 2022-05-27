@@ -107,9 +107,19 @@ class App extends Component {
       });
     });
 
+    let countPlatesKeys = [];
     newState.finalPlateSet.forEach((x) => {
-      newState.plateCounts[x] = (newState.plateCounts[x] || 0) + 1;
+      countPlatesKeys[x] = (countPlatesKeys[x] || 0) + 1;
     });
+
+    Object.keys(countPlatesKeys).map((value) => {
+      newState.plateCounts.push({
+        value,
+        quantity: countPlatesKeys[value]
+      });
+    });
+
+    newState.plateCounts.sort((a,b) => a.value - b.value);
 
     newState.saved = true;
     this.setState(newState);
@@ -140,7 +150,7 @@ class App extends Component {
                 <li key={-1}>Barra de {selectedBarbellOption} Lb</li>
                 {
                   plateCounts.map((item, index) => (
-                    <li key={index}>{item * 2} discos de {index} Lb</li> 
+                    <li key={index}>{item.quantity * 2} discos de {item.value} Lb</li> 
                   ))
                 }
               </ul>
@@ -151,7 +161,7 @@ class App extends Component {
                       <h3>Levantamiento al {item.percentage}%</h3>
                       {
                         item.accuratePercentage !== item.roundPercentage ?
-                        <span>Peso redondeado: {item.roundPercentage} Lb | Real: {item.accuratePercentage} Lb</span>:
+                        <span>Peso redondeado: {item.roundPercentage} Lb | Preciso: {item.accuratePercentage} Lb</span>:
                         <span>Peso: {item.roundPercentage} Lb</span>
                       }
                       <ul className='plates'>
