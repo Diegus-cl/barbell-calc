@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import Button from './components/Button';
 import TextField from './components/TextField';
 import Percentages from './components/Percentages';
+import Select from './components/Select';
 import './App.css';
 
 class App extends Component {
@@ -13,7 +14,11 @@ class App extends Component {
   setDefaultState() {
     return {
       PR: "",
-      barbellWeight: "",
+      barOptions: [
+        { value: 35, label: 'Niña (35 Lb)' },
+        { value: 45, label: 'Niño (45 Lb)' }
+      ],
+      selectedBarbellOption: 35,
       discSet: [45, 35, 25, 15, 10, 5, 2.5],
       targets: [''],
       barConfigurations: [],
@@ -30,9 +35,13 @@ class App extends Component {
     this.setState(this.setDefaultState);
   }
 
+  handleSelectChange = e => {
+    let selectedBarbellOption = e.target.value;
+    this.setState({ selectedBarbellOption });
+  };
+
   handlePercentageTextfield = e => {
     const percentageIndex = Number(e.target.name.substr(e.target.name.indexOf('_') + 1));
-    const field = e.target.name.slice(0, e.target.name.indexOf('_'));
     let targets = this.state.targets;
     targets[percentageIndex] = e.target.value;
 
@@ -81,7 +90,7 @@ class App extends Component {
 
     targetWeights.forEach((tW, index) => {
       finalPlatesTemp = [...newState.finalPlateSet];
-      let targetWeight = (tW - parseInt(newState.barbellWeight)) / 2;
+      let targetWeight = (tW - parseInt(newState.selectedBarbellOption)) / 2;
 
       newState.discSet.forEach((plate) => {
         while (targetWeight >= plate) {
@@ -107,11 +116,15 @@ class App extends Component {
   }
 
   render() {
-    const {
-      PR,
-      barbellWeight
-     } = this.state;
-    const { targets, plateCounts, barConfigurations, errors, saving, saved } = this.state;
+    const { PR,
+      barOptions,
+      selectedBarbellOption,
+      targets,
+      plateCounts,
+      barConfigurations,
+      errors,
+      saved
+    } = this.state;
 
     return (
       <div className="App">
@@ -124,7 +137,7 @@ class App extends Component {
             <div className='wrapper'>
               <h2>Equipos necesarios</h2>
               <ul>
-                <li key={-1}>Barra de {barbellWeight} Lb</li>
+                <li key={-1}>Barra de {selectedBarbellOption} Lb</li>
                 {
                   plateCounts.map((item, index) => (
                     <li key={index}>{item * 2} discos de {index} Lb</li> 
@@ -137,7 +150,7 @@ class App extends Component {
                   <div key={index}>
                       <h3>Levantamiento al {item.percentage}%</h3>
                       {
-                        item.accuratePercentage != item.roundPercentage ?
+                        item.accuratePercentage !== item.roundPercentage ?
                         <span>Peso redondeado: {item.roundPercentage} Lb | Real: {item.accuratePercentage} Lb</span>:
                         <span>Peso: {item.roundPercentage} Lb</span>
                       }
@@ -160,7 +173,7 @@ class App extends Component {
               
               <form className='form'>
                 <div className='form__field'>
-                  <a className='App-link' onClick={this.restartCalculation} href="#">Nuevo Calculo</a>
+                  <a className='App-link' onClick={this.restartCalculation} href="#">Reiniciar</a>
                 </div>
               </form>
             </div>
@@ -183,16 +196,14 @@ class App extends Component {
                     onChange={this.handleTextfield}
                   />
 
-                  <TextField
-                    type="text"
-                    name="barbellWeight"
-                    value={barbellWeight}
-                    label="Peso de barbell"
-                    placeholder="e.g. 45"
-                    required={true}
-                    error={errors.barbellWeight}
-                    onChange={this.handleTextfield}
+                  <Select
+                    name="barWeightOptions"
+                    label="Peso de barra"
+                    options={barOptions}
+                    onChange={this.handleSelectChange}
                   />
+
+                  <h3>Porcentajes</h3>
 
                   <Percentages
                     percentages={targets}
