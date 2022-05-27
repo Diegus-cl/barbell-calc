@@ -134,7 +134,7 @@ class App extends Component {
 
         {
           saved &&
-            <div className='wrapper'>
+            <div className='wrapper wrapper--form'>
               <h2>Equipos necesarios</h2>
               <ul>
                 <li key={-1}>Barra de {selectedBarbellOption} Lb</li>
