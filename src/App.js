@@ -15,10 +15,10 @@ class App extends Component {
     return {
       PR: "",
       barOptions: [
-        { value: 35, label: 'Niña (35 Lb)' },
-        { value: 45, label: 'Niño (45 Lb)' }
+        { value: 45, label: 'Niño (45 Lb)' },
+        { value: 35, label: 'Niña (35 Lb)' }
       ],
-      selectedBarbellOption: 35,
+      selectedBarbellOption: 45,
       discSet: [45, 35, 25, 15, 10, 5, 2.5],
       targets: [''],
       barConfigurations: [],
@@ -77,7 +77,8 @@ class App extends Component {
 
     newState.targets.forEach((targetPercentage, index) => {
       let tW = Math.round(parseInt(newState.PR) * targetPercentage/100);
-      targetWeights.push(tW - tW % 5) // delete `% 5` for 100% accuracy
+      let pW = tW + (tW % 5 <= 2 ? -1 * tW % 5 : 5 - (tW % 5)); // training approach, above or below approximation; <= 2 goes beyond
+      targetWeights.push(pW);
       newState.barConfigurations[index] = { 
         percentage: targetPercentage,
         accuratePercentage: tW,
