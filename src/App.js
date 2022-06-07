@@ -123,7 +123,7 @@ class App extends Component {
     newState.plateCounts.sort((a,b) => a.value - b.value);
 
     newState.saved = true;
-    this.setState(newState);
+    this.setState(newState); 
   }
 
   render() {
