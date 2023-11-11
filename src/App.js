@@ -15,11 +15,16 @@ class App extends Component {
     return {
       PR: "",
       barOptions: [
-        { value: 45, label: 'Niño (45 Lb)' },
-        { value: 35, label: 'Niña (35 Lb)' }
+        // LB
+        // { value: 45, label: 'Niño (45 Lb)' },
+        // { value: 35, label: 'Niña (35 Lb)' }
+        { value: 20, label: 'Niño (20 Kg)' },
+        { value: 15, label: 'Niña (15 Kg)' }
       ],
       selectedBarbellOption: 45,
-      discSet: [45, 35, 25, 15, 10, 5, 2.5],
+      // LB
+      // discSet: [45, 35, 25, 15, 10, 5, 2.5],
+      discSet: [25, 20, 15, 10, 5],
       targets: [''],
       barConfigurations: [],
       finalPlateSet: [],
@@ -140,7 +145,7 @@ class App extends Component {
     return (
       <div className="App">
         <header className="App-header">
-          CFM Calculadora
+          Calculadora de Pesos
         </header>
 
         {
@@ -148,7 +153,9 @@ class App extends Component {
             <div className='wrapper wrapper--form'>
               <h2>Equipos necesarios</h2>
               <ul>
-                <li key={-1}>Barra de {selectedBarbellOption} Lb</li>
+                {/* LB
+                <li key={-1}>Barra de {selectedBarbellOption} Lb</li> */}
+                <li key={-1}>Barra de {selectedBarbellOption} Kg</li>
                 {
                   plateCounts.map((item, index) => (
                     <li key={index}>{item.quantity * 2} discos de {item.value} Lb</li> 
@@ -162,8 +169,11 @@ class App extends Component {
                       <h3>Levantamiento al {item.percentage}%</h3>
                       {
                         item.accuratePercentage !== item.roundPercentage ?
-                        <span>Peso redondeado: {item.roundPercentage} Lb | Preciso: {item.accuratePercentage} Lb</span>:
-                        <span>Peso: {item.roundPercentage} Lb</span>
+                        // LB
+                        // <span>Peso redondeado: {item.roundPercentage} Lb | Preciso: {item.accuratePercentage} Lb</span>:
+                        // <span>Peso: {item.roundPercentage} Lb</span>
+                        <span>Peso redondeado: {item.roundPercentage} Kg | Preciso: {item.accuratePercentage} Kg</span>:
+                        <span>Peso: {item.roundPercentage} Kg</span>
                       }
                       <ul className='plates'>
                       {
