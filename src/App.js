@@ -21,7 +21,7 @@ class App extends Component {
         { value: 20, label: 'Niño (20 Kg)' },
         { value: 15, label: 'Niña (15 Kg)' }
       ],
-      selectedBarbellOption: 45,
+      selectedBarbellOption: 20,
       // LB
       // discSet: [45, 35, 25, 15, 10, 5, 2.5],
       discSet: [25, 20, 15, 10, 5],
