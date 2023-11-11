@@ -174,12 +174,18 @@ class App extends Component {
                 <div key={index}>
                   <h3>Levantamiento al {item.percentage}%</h3>
                   {
+                    // LB
+                    // <span>Peso redondeado: {item.roundPercentage} Lb | Preciso: {item.accuratePercentage} Lb</span>:
+                    // <span>Peso: {item.roundPercentage} Lb</span>
                     item.accuratePercentage !== item.roundPercentage ?
-                      // LB
-                      // <span>Peso redondeado: {item.roundPercentage} Lb | Preciso: {item.accuratePercentage} Lb</span>:
-                      // <span>Peso: {item.roundPercentage} Lb</span>
-                      <span>Peso redondeado: {item.roundPercentage} Kg | Preciso: {item.accuratePercentage} Kg | Configuración más cercana: {item.closestConfig} Kg</span> :
-                      <span>Peso: {item.roundPercentage} Kg | Configuración más cercana: {item.closestConfig} Kg</span>
+                      <span>
+                        Peso redondeado: {item.roundPercentage} Kg | Preciso: {item.accuratePercentage} Kg
+                        {item.closestConfig !== item.roundPercentage && ` | Configuración más cercana: ${item.closestConfig} Kg`}
+                      </span> :
+                      <span>
+                        Peso: {item.roundPercentage} Kg
+                        {item.closestConfig !== item.roundPercentage && ` | Configuración más cercana: ${item.closestConfig} Kg`}
+                      </span>
                   }
                   <ul className='plates'>
                     {
