@@ -74,17 +74,17 @@ class App extends Component {
 
     const newState = {
       ...this.state
-     };
+    };
 
     newState.discSet.sort((a, b) => b - a);
     newState.targets.sort((a, b) => a - b);
     const targetWeights = [];
 
     newState.targets.forEach((targetPercentage, index) => {
-      let tW = Math.round(parseInt(newState.PR) * targetPercentage/100);
+      let tW = Math.round(parseInt(newState.PR) * targetPercentage / 100);
       let pW = tW + (tW % 5 <= 2 ? -1 * tW % 5 : 5 - (tW % 5)); // training approach, above or below approximation; <= 2 goes beyond
       targetWeights.push(pW);
-      newState.barConfigurations[index] = { 
+      newState.barConfigurations[index] = {
         percentage: targetPercentage,
         accuratePercentage: tW,
         roundPercentage: targetWeights[index],
@@ -98,9 +98,11 @@ class App extends Component {
       finalPlatesTemp = [...newState.finalPlateSet];
       let targetWeight = (tW - parseInt(newState.selectedBarbellOption)) / 2;
 
+      let closestConfigWeight = parseInt(newState.selectedBarbellOption);
       newState.discSet.forEach((plate) => {
         while (targetWeight >= plate) {
           targetWeight -= plate;
+          closestConfigWeight += plate * 2; // Suma dos veces el peso del disco (lado izquierdo y derecho)
           newState.barConfigurations[index].plates.push(plate);
 
           const foundPlateIndex = finalPlatesTemp.indexOf(plate);
@@ -111,6 +113,8 @@ class App extends Component {
           }
         }
       });
+
+      newState.barConfigurations[index].closestConfig = closestConfigWeight;
     });
 
     let countPlatesKeys = [];
@@ -125,10 +129,10 @@ class App extends Component {
       });
     });
 
-    newState.plateCounts.sort((a,b) => a.value - b.value);
+    newState.plateCounts.sort((a, b) => a.value - b.value);
 
     newState.saved = true;
-    this.setState(newState); 
+    this.setState(newState);
   }
 
   render() {
@@ -150,56 +154,56 @@ class App extends Component {
 
         {
           saved &&
-            <div className='wrapper wrapper--form'>
-              <h2>Equipos necesarios</h2>
-              <ul>
-                {/* LB
+          <div className='wrapper wrapper--form'>
+            <h2>Equipos necesarios</h2>
+            <ul>
+              {/* LB
                 <li key={-1}>Barra de {selectedBarbellOption} Lb</li> */}
-                <li key={-1}>Barra de {selectedBarbellOption} Kg</li>
-                {
-                  plateCounts.map((item, index) => (
-                    // LB
-                    // <li key={index}>{item.quantity * 2} discos de {item.value} Lb</li> 
-                    <li key={index}>{item.quantity * 2} discos de {item.value} Kg</li> 
-                  ))
-                }
-              </ul>
-              <h2>Configuración de porcentajes</h2>
-                {
-                  barConfigurations.map((item, index) => (
-                  <div key={index}>
-                      <h3>Levantamiento al {item.percentage}%</h3>
-                      {
-                        item.accuratePercentage !== item.roundPercentage ?
-                        // LB
-                        // <span>Peso redondeado: {item.roundPercentage} Lb | Preciso: {item.accuratePercentage} Lb</span>:
-                        // <span>Peso: {item.roundPercentage} Lb</span>
-                        <span>Peso redondeado: {item.roundPercentage} Kg | Preciso: {item.accuratePercentage} Kg</span>:
-                        <span>Peso: {item.roundPercentage} Kg</span>
-                      }
-                      <ul className='plates'>
-                      {
-                        item.plates.sort((a, b) => a - b).map((item, index) => (
-                          <li key={index}>{item}</li>
-                        ))
-                      }
-                        <li className="bar">———</li>
-                      {
-                        item.plates.sort((a, b) => b - a).map((item, index) => (
-                          <li key={index}>{item}</li>
-                        ))
-                      }
-                      </ul>
-                  </div> 
-                  ))
-                }
-              
-              <form className='form'>
-                <div className='form__field'>
-                  <a className='App-link' onClick={this.restartCalculation} href="#">Reiniciar</a>
+              <li key={-1}>Barra de {selectedBarbellOption} Kg</li>
+              {
+                plateCounts.map((item, index) => (
+                  // LB
+                  // <li key={index}>{item.quantity * 2} discos de {item.value} Lb</li> 
+                  <li key={index}>{item.quantity * 2} discos de {item.value} Kg</li>
+                ))
+              }
+            </ul>
+            <h2>Configuración de porcentajes</h2>
+            {
+              barConfigurations.map((item, index) => (
+                <div key={index}>
+                  <h3>Levantamiento al {item.percentage}%</h3>
+                  {
+                    item.accuratePercentage !== item.roundPercentage ?
+                      // LB
+                      // <span>Peso redondeado: {item.roundPercentage} Lb | Preciso: {item.accuratePercentage} Lb</span>:
+                      // <span>Peso: {item.roundPercentage} Lb</span>
+                      <span>Peso redondeado: {item.roundPercentage} Kg | Preciso: {item.accuratePercentage} Kg | Configuración más cercana: {item.closestConfig} Kg</span> :
+                      <span>Peso: {item.roundPercentage} Kg | Configuración más cercana: {item.closestConfig} Kg</span>
+                  }
+                  <ul className='plates'>
+                    {
+                      item.plates.sort((a, b) => a - b).map((item, index) => (
+                        <li key={index}>{item}</li>
+                      ))
+                    }
+                    <li className="bar">———</li>
+                    {
+                      item.plates.sort((a, b) => b - a).map((item, index) => (
+                        <li key={index}>{item}</li>
+                      ))
+                    }
+                  </ul>
                 </div>
-              </form>
-            </div>
+              ))
+            }
+
+            <form className='form'>
+              <div className='form__field'>
+                <a className='App-link' onClick={this.restartCalculation} href="#">Reiniciar</a>
+              </div>
+            </form>
+          </div>
         }
 
         {
@@ -232,14 +236,14 @@ class App extends Component {
                     percentages={targets}
                     onTextChange={this.handlePercentageTextfield}
                     onClick={this.handlePercentageClick} />
-              
+
                   <div className='form__field'>
                     <Button
                       label="Calcular Total"
                       progress={false} />
                   </div>
                 </form>
-                
+
               </div>
             </section>
           </div>
