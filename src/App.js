@@ -158,7 +158,9 @@ class App extends Component {
                 <li key={-1}>Barra de {selectedBarbellOption} Kg</li>
                 {
                   plateCounts.map((item, index) => (
-                    <li key={index}>{item.quantity * 2} discos de {item.value} Lb</li> 
+                    // LB
+                    // <li key={index}>{item.quantity * 2} discos de {item.value} Lb</li> 
+                    <li key={index}>{item.quantity * 2} discos de {item.value} Kg</li> 
                   ))
                 }
               </ul>
