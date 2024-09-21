@@ -4,6 +4,7 @@ import TextField from './components/TextField';
 import Percentages from './components/Percentages';
 import Select from './components/Select';
 import './App.css';
+import { Switch } from '@mui/material';
 
 class App extends Component {
   constructor(props) {
@@ -14,17 +15,10 @@ class App extends Component {
   setDefaultState() {
     return {
       PR: "",
-      barOptions: [
-        // LB
-        // { value: 45, label: 'Niño (45 Lb)' },
-        // { value: 35, label: 'Niña (35 Lb)' }
-        { value: 20, label: 'Niño (20 Kg)' },
-        { value: 15, label: 'Niña (15 Kg)' }
-      ],
+      units: "KG", // New state to store the unit
+      barOptions: this.getBarOptions("KG"), // Default to KG
+      discSet: this.getDiscSet("KG"), // Default to KG disc set
       selectedBarbellOption: 20,
-      // LB
-      // discSet: [45, 35, 25, 15, 10, 5, 2.5],
-      discSet: [25, 20, 15, 10, 5],
       targets: [''],
       barConfigurations: [],
       finalPlateSet: [],
@@ -35,9 +29,21 @@ class App extends Component {
     }
   }
 
+  // Helper to get bar options based on the unit
+  getBarOptions(unit) {
+    return unit === "KG"
+      ? [{ value: 20, label: 'Niño (20 Kg)' }, { value: 15, label: 'Niña (15 Kg)' }]
+      : [{ value: 45, label: 'Niño (45 Lb)' }, { value: 35, label: 'Niña (35 Lb)' }];
+  }
+
+  // Helper to get disc sets based on the unit
+  getDiscSet(unit) {
+    return unit === "KG" ? [25, 20, 15, 10, 5, 2.5] : [45, 35, 25, 15, 10, 5, 2.5];
+  }
+
   restartCalculation = e => {
     e.preventDefault();
-    this.setState(this.setDefaultState);
+    this.setState(this.setDefaultState());
   }
 
   handleSelectChange = e => {
@@ -67,6 +73,17 @@ class App extends Component {
     let newState = this.state;
     newState[field] = e.target.value;
     this.setState(newState);
+  }
+
+  // New handler for switching between units
+  handleUnitSwitch = () => {
+    const newUnit = this.state.units === "KG" ? "LB" : "KG";
+    this.setState({
+      units: newUnit,
+      barOptions: this.getBarOptions(newUnit),
+      discSet: this.getDiscSet(newUnit),
+      selectedBarbellOption: newUnit === "KG" ? 20 : 45, // Default bar weight for each unit
+    });
   }
 
   onSubmit = e => {
@@ -143,7 +160,8 @@ class App extends Component {
       plateCounts,
       barConfigurations,
       errors,
-      saved
+      saved,
+      units // Add units state to render
     } = this.state;
 
     return (
@@ -157,14 +175,10 @@ class App extends Component {
           <div className='wrapper wrapper--form'>
             <h2>Equipos necesarios</h2>
             <ul>
-              {/* LB
-                <li key={-1}>Barra de {selectedBarbellOption} Lb</li> */}
-              <li key={-1}>Barra de {selectedBarbellOption} Kg</li>
+              <li key={-1}>Barra de {selectedBarbellOption} {units}</li>
               {
                 plateCounts.map((item, index) => (
-                  // LB
-                  // <li key={index}>{item.quantity * 2} discos de {item.value} Lb</li> 
-                  <li key={index}>{item.quantity * 2} discos de {item.value} Kg</li>
+                  <li key={index}>{item.quantity * 2} discos de {item.value} {units}</li>
                 ))
               }
             </ul>
@@ -174,17 +188,14 @@ class App extends Component {
                 <div key={index}>
                   <h3>Levantamiento al {item.percentage}%</h3>
                   {
-                    // LB
-                    // <span>Peso redondeado: {item.roundPercentage} Lb | Preciso: {item.accuratePercentage} Lb</span>:
-                    // <span>Peso: {item.roundPercentage} Lb</span>
                     item.accuratePercentage !== item.roundPercentage ?
                       <span>
-                        Peso redondeado: {item.roundPercentage} Kg | Preciso: {item.accuratePercentage} Kg
-                        {item.closestConfig !== item.roundPercentage && ` | Configuración más cercana: ${item.closestConfig} Kg`}
+                        Peso redondeado: {item.roundPercentage} {units} | Preciso: {item.accuratePercentage} {units}
+                        {item.closestConfig !== item.roundPercentage && ` | Configuración más cercana: ${item.closestConfig} ${units}`}
                       </span> :
                       <span>
-                        Peso: {item.roundPercentage} Kg
-                        {item.closestConfig !== item.roundPercentage && ` | Configuración más cercana: ${item.closestConfig} Kg`}
+                        Peso: {item.roundPercentage} {units}
+                        {item.closestConfig !== item.roundPercentage && ` | Configuración más cercana: ${item.closestConfig} ${units}`}
                       </span>
                   }
                   <ul className='plates'>
@@ -215,6 +226,17 @@ class App extends Component {
         {
           !saved &&
           <div className='wrapper'>
+            {/* Switch for KG and LB */}
+            <div className="unit-switch" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
+              <label>LB</label>
+              <Switch
+                checked={units === "KG"}
+                onChange={this.handleUnitSwitch}
+                color="primary"
+                inputProps={{ 'aria-label': 'unit switch' }}
+              />
+              <label>KG</label>
+            </div>
             <section className="form">
               <div className='wrapper--form'>
                 <form onSubmit={this.onSubmit}>
@@ -241,15 +263,17 @@ class App extends Component {
                   <Percentages
                     percentages={targets}
                     onTextChange={this.handlePercentageTextfield}
-                    onClick={this.handlePercentageClick} />
+                    onClick={this.handlePercentageClick}
+                    errors={errors}
+                  />
 
                   <div className='form__field'>
                     <Button
-                      label="Calcular Total"
-                      progress={false} />
+                      type="submit"
+                      label="Calcular"
+                    />
                   </div>
                 </form>
-
               </div>
             </section>
           </div>
