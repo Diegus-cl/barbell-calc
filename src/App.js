@@ -5,6 +5,8 @@ import Percentages from './components/Percentages';
 import Select from './components/Select';
 import './App.css';
 import { Switch } from '@mui/material';
+import ResultsPage from './components/ResultsPage';
+import WeightsForm from './components/WeightsForm';
 
 class App extends Component {
   constructor(props) {
@@ -67,14 +69,14 @@ class App extends Component {
 
     this.setState({ targets });
   }
-
-  handleTextfield = e => {
+  
+  handleTextfield = (e) => {
     const field = e.target.name;
     let newState = this.state;
     newState[field] = e.target.value;
     this.setState(newState);
   }
-
+  
   // New handler for switching between units
   handleUnitSwitch = () => {
     const newUnit = this.state.units === "KG" ? "LB" : "KG";
@@ -172,111 +174,29 @@ class App extends Component {
 
         {
           saved &&
-          <div className='wrapper wrapper--form'>
-            <h2>Equipos necesarios</h2>
-            <ul>
-              <li key={-1}>Barra de {selectedBarbellOption} {units}</li>
-              {
-                plateCounts.map((item, index) => (
-                  <li key={index}>{item.quantity * 2} discos de {item.value} {units}</li>
-                ))
-              }
-            </ul>
-            <h2>Configuración de porcentajes</h2>
-            {
-              barConfigurations.map((item, index) => (
-                <div key={index}>
-                  <h3>Levantamiento al {item.percentage}%</h3>
-                  {
-                    item.accuratePercentage !== item.roundPercentage ?
-                      <span>
-                        Peso redondeado: {item.roundPercentage} {units} | Preciso: {item.accuratePercentage} {units}
-                        {item.closestConfig !== item.roundPercentage && ` | Configuración más cercana: ${item.closestConfig} ${units}`}
-                      </span> :
-                      <span>
-                        Peso: {item.roundPercentage} {units}
-                        {item.closestConfig !== item.roundPercentage && ` | Configuración más cercana: ${item.closestConfig} ${units}`}
-                      </span>
-                  }
-                  <ul className='plates'>
-                    {
-                      item.plates.sort((a, b) => a - b).map((item, index) => (
-                        <li key={index}>{item}</li>
-                      ))
-                    }
-                    <li className="bar">———</li>
-                    {
-                      item.plates.sort((a, b) => b - a).map((item, index) => (
-                        <li key={index}>{item}</li>
-                      ))
-                    }
-                  </ul>
-                </div>
-              ))
-            }
-
-            <form className='form'>
-              <div className='form__field'>
-                <a className='App-link' onClick={this.restartCalculation} href="#">Reiniciar</a>
-              </div>
-            </form>
-          </div>
+          <ResultsPage
+            plateCounts={plateCounts}
+            selectedBarbellOption={selectedBarbellOption}
+            units={units} barConfigurations={barConfigurations}
+            restartCalculation={this.restartCalculation}
+          />
         }
 
         {
           !saved &&
-          <div className='wrapper'>
-            {/* Switch for KG and LB */}
-            <div className="unit-switch" style={{ display: "flex", justifyContent: "center", alignItems: "center" }}>
-              <label>LB</label>
-              <Switch
-                checked={units === "KG"}
-                onChange={this.handleUnitSwitch}
-                color="primary"
-                inputProps={{ 'aria-label': 'unit switch' }}
-              />
-              <label>KG</label>
-            </div>
-            <section className="form">
-              <div className='wrapper--form'>
-                <form onSubmit={this.onSubmit}>
-                  <TextField
-                    type="text"
-                    name="PR"
-                    value={PR}
-                    label="PR"
-                    placeholder="e.g. 320"
-                    required={true}
-                    error={errors.PR}
-                    onChange={this.handleTextfield}
-                  />
-
-                  <Select
-                    name="barWeightOptions"
-                    label="Peso de barra"
-                    options={barOptions}
-                    onChange={this.handleSelectChange}
-                  />
-
-                  <h3>Porcentajes</h3>
-
-                  <Percentages
-                    percentages={targets}
-                    onTextChange={this.handlePercentageTextfield}
-                    onClick={this.handlePercentageClick}
-                    errors={errors}
-                  />
-
-                  <div className='form__field'>
-                    <Button
-                      type="submit"
-                      label="Calcular"
-                    />
-                  </div>
-                </form>
-              </div>
-            </section>
-          </div>
+          <WeightsForm
+            onSubmit={this.onSubmit}
+            PR={PR}
+            handleUnitSwitch={this.handleUnitSwitch}
+            handleTextfield={this.handlePercentageTextfield}
+            handlePercentageClick={this.handlePercentageClick}
+            handlePercentageTextfield={this.handlePercentageTextfield}
+            handleSelectChange={this.handleSelectChange}
+            units={units}
+            targets={targets}
+            barOptions={barOptions}
+            errors={errors}
+          />
         }
       </div>
     );
