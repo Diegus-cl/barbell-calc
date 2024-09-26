@@ -188,7 +188,7 @@ class App extends Component {
             onSubmit={this.onSubmit}
             PR={PR}
             handleUnitSwitch={this.handleUnitSwitch}
-            handleTextfield={this.handlePercentageTextfield}
+            handleTextfield={this.handleTextfield}
             handlePercentageClick={this.handlePercentageClick}
             handlePercentageTextfield={this.handlePercentageTextfield}
             handleSelectChange={this.handleSelectChange}
