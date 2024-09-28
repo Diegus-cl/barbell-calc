@@ -1,4 +1,4 @@
-import React from "react"
+import React, { useState } from "react"
 import { Switch } from "@mui/material"
 import Select from "./Select"
 import Percentages from "./Percentages"
@@ -6,6 +6,7 @@ import Button from "./Button"
 import TextField from "./TextField"
 
 const WeightsForm = ({ onSubmit, PR, handleUnitSwitch, handleTextfield, handlePercentageClick, handlePercentageTextfield, handleSelectChange, units, targets, barOptions, errors }) => {
+  const [isPercentagesCalculation, setIsPercentageCalculation] = useState(true)
 
   return (
     <div className='wrapper'>
@@ -41,14 +42,23 @@ const WeightsForm = ({ onSubmit, PR, handleUnitSwitch, handleTextfield, handlePe
               onChange={handleSelectChange}
             />
 
-            <h3>Porcentajes</h3>
+            <h2 style={{display: "flex", justifyContent: "space-between"}}>
+              <span className={"select-mode " + (isPercentagesCalculation ? "active" : "")} onClick={() => setIsPercentageCalculation(true)}>Porcentajes</span>
+              <span className={"select-mode " + (isPercentagesCalculation ? "" : "active")} onClick={() => setIsPercentageCalculation(false)}>Pesos Manuales</span>
+            </h2>
 
-            <Percentages
-              percentages={targets}
-              onTextChange={handlePercentageTextfield}
-              onClick={handlePercentageClick}
-              errors={errors}
-            />
+            {
+              isPercentagesCalculation 
+              ?
+              <Percentages
+                percentages={targets}
+                onTextChange={handlePercentageTextfield}
+                onClick={handlePercentageClick}
+                errors={errors}
+              />
+              :
+              <h1>Formulario de pesos manuales coming soon</h1>
+            }
 
             <div className='form__field'>
               <Button

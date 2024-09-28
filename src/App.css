@@ -39,12 +39,20 @@ h2 {
   font-size: 1.8rem;
 }
 
-h3 {
+.select-mode {
+  cursor: pointer;
   font-weight: normal;
   font-size: 1.4rem;
-  border-top: 0.1rem solid #4a4a4a;
-  color: #4f72c3;
-  padding: 1rem 0 0;
+  border: 1px solid #4a4a4a;
+  border-radius: 10px;
+  color: #56d7ff;
+  padding: 1rem;
+  opacity: 0.3
+}
+
+.select-mode.active,.select-mode:hover {
+  opacity: 1;
+  border-width: 3px
 }
 
 .plates {
