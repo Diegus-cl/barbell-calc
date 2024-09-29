@@ -5,9 +5,7 @@ import Percentages from "./Percentages"
 import Button from "./Button"
 import TextField from "./TextField"
 
-const WeightsForm = ({ onSubmit, PR, handleUnitSwitch, handleTextfield, handlePercentageClick, handlePercentageTextfield, handleSelectChange, units, targets, barOptions, errors }) => {
-  const [isPercentagesCalculation, setIsPercentageCalculation] = useState(true)
-
+const WeightsForm = ({ onSubmit, PR, handleUnitSwitch, handleTextfield, handlePercentageClick, handlePercentageTextfield, handleSelectChange, units, targets, isPercentagesCalculation, setIsPercentageCalculation, barOptions, errors }) => {
   return (
     <div className='wrapper'>
       {/* Switch for KG and LB */}
@@ -24,16 +22,25 @@ const WeightsForm = ({ onSubmit, PR, handleUnitSwitch, handleTextfield, handlePe
       <section className="form">
         <div className='wrapper--form'>
           <form onSubmit={onSubmit}>
-            <TextField
-              type="text"
-              name="PR"
-              value={PR}
-              label="PR"
-              placeholder="e.g. 320"
-              required={true}
-              error={errors.PR}
-              onChange={handleTextfield}
-            />
+            {/* <p>Elige el modo:</p> */}
+            <h2 style={{ display: "flex", justifyContent: "space-between" }}>
+              <span className={"select-mode " + (isPercentagesCalculation ? "active" : "")} onClick={() => setIsPercentageCalculation(true)}>Porcentajes</span>
+              <span className={"select-mode " + (isPercentagesCalculation ? "" : "active")} onClick={() => setIsPercentageCalculation(false)}>Pesos Manuales</span>
+            </h2>
+
+            {
+              isPercentagesCalculation &&
+              <TextField
+                type="text"
+                name="PR"
+                value={PR}
+                label="PR"
+                placeholder="e.g. 320"
+                required={true}
+                error={errors.PR}
+                onChange={handleTextfield}
+              />
+            }
 
             <Select
               name="barWeightOptions"
@@ -42,12 +49,7 @@ const WeightsForm = ({ onSubmit, PR, handleUnitSwitch, handleTextfield, handlePe
               onChange={handleSelectChange}
             />
 
-            <h2 style={{display: "flex", justifyContent: "space-between"}}>
-              <span className={"select-mode " + (isPercentagesCalculation ? "active" : "")} onClick={() => setIsPercentageCalculation(true)}>Porcentajes</span>
-              <span className={"select-mode " + (isPercentagesCalculation ? "" : "active")} onClick={() => setIsPercentageCalculation(false)}>Pesos Manuales</span>
-            </h2>
-
-            {
+            {/* {
               isPercentagesCalculation 
               ?
               <Percentages
@@ -58,7 +60,15 @@ const WeightsForm = ({ onSubmit, PR, handleUnitSwitch, handleTextfield, handlePe
               />
               :
               <h1>Formulario de pesos manuales coming soon</h1>
-            }
+            } */}
+
+            <Percentages
+              percentages={targets}
+              onTextChange={handlePercentageTextfield}
+              onClick={handlePercentageClick}
+              errors={errors}
+              isPercentagesCalculation={isPercentagesCalculation}
+            />
 
             <div className='form__field'>
               <Button

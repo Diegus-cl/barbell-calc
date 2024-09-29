@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import Button from './components/Button';
 import TextField from './components/TextField';
 import Percentages from './components/Percentages';
@@ -8,108 +8,111 @@ import { Switch } from '@mui/material';
 import ResultsPage from './components/ResultsPage';
 import WeightsForm from './components/WeightsForm';
 
-class App extends Component {
-  constructor(props) {
-    super(props);
-    this.state = this.setDefaultState();
-  }
+const App = () => {
+  const [isPercentagesCalculation, setIsPercentageCalculation] = useState(true)
 
-  setDefaultState() {
-    return {
-      PR: "",
-      units: "KG", // New state to store the unit
-      barOptions: this.getBarOptions("KG"), // Default to KG
-      discSet: this.getDiscSet("KG"), // Default to KG disc set
-      selectedBarbellOption: 20,
-      targets: [''],
-      barConfigurations: [],
-      finalPlateSet: [],
-      plateCounts: [],
-      errors: {},
-      saving: false,
-      saved: false
-    }
-  }
+  const setDefaultState = () => ({
+    PR: "",
+    units: "KG",
+    barOptions: getBarOptions("KG"),
+    discSet: getDiscSet("KG"),
+    selectedBarbellOption: 20,
+    targets: [''],
+    barConfigurations: [],
+    finalPlateSet: [],
+    plateCounts: [],
+    errors: {},
+    saving: false,
+    saved: false
+  });
 
-  // Helper to get bar options based on the unit
-  getBarOptions(unit) {
+  const getBarOptions = (unit) => {
     return unit === "KG"
       ? [{ value: 20, label: 'Niño (20 Kg)' }, { value: 15, label: 'Niña (15 Kg)' }]
       : [{ value: 45, label: 'Niño (45 Lb)' }, { value: 35, label: 'Niña (35 Lb)' }];
-  }
-
-  // Helper to get disc sets based on the unit
-  getDiscSet(unit) {
-    return unit === "KG" ? [25, 20, 15, 10, 5, 2.5] : [45, 35, 25, 15, 10, 5, 2.5];
-  }
-
-  restartCalculation = e => {
-    e.preventDefault();
-    this.setState(this.setDefaultState());
-  }
-
-  handleSelectChange = e => {
-    let selectedBarbellOption = e.target.value;
-    this.setState({ selectedBarbellOption });
   };
 
-  handlePercentageTextfield = e => {
+  const getDiscSet = (unit) => {
+    return unit === "KG" ? [25, 20, 15, 10, 5, 2.5] : [45, 35, 25, 15, 10, 5, 2.5];
+  };
+
+  const [state, setState] = useState(setDefaultState);
+
+  const restartCalculation = (e) => {
+    e.preventDefault();
+    setState(setDefaultState());
+  };
+
+  const handleSelectChange = (e) => {
+    const selectedBarbellOption = e.target.value;
+    setState((prevState) => ({ ...prevState, selectedBarbellOption }));
+  };
+
+  const handlePercentageTextfield = (e) => {
     const percentageIndex = Number(e.target.name.substr(e.target.name.indexOf('_') + 1));
-    let targets = this.state.targets;
+    let targets = [...state.targets];
     targets[percentageIndex] = e.target.value;
 
-    this.setState({ targets });
-  }
+    setState((prevState) => ({ ...prevState, targets }));
+  };
 
-  handlePercentageClick = e => {
+  const handlePercentageClick = (e) => {
     e.preventDefault();
-
-    let targets = [...this.state.targets];
+    let targets = [...state.targets];
     targets.push('');
+    setState((prevState) => ({ ...prevState, targets }));
+  };
 
-    this.setState({ targets });
-  }
-  
-  handleTextfield = (e) => {
+  const handleTextfield = (e) => {
     const field = e.target.name;
-    let newState = this.state;
-    newState[field] = e.target.value;
-    this.setState(newState);
-  }
-  
-  // New handler for switching between units
-  handleUnitSwitch = () => {
-    const newUnit = this.state.units === "KG" ? "LB" : "KG";
-    this.setState({
+    setState((prevState) => ({ ...prevState, [field]: e.target.value }));
+  };
+
+  const handleUnitSwitch = () => {
+    const newUnit = state.units === "KG" ? "LB" : "KG";
+    setState((prevState) => ({
+      ...prevState,
       units: newUnit,
-      barOptions: this.getBarOptions(newUnit),
-      discSet: this.getDiscSet(newUnit),
-      selectedBarbellOption: newUnit === "KG" ? 20 : 45, // Default bar weight for each unit
-    });
-  }
+      barOptions: getBarOptions(newUnit),
+      discSet: getDiscSet(newUnit),
+      selectedBarbellOption: newUnit === "KG" ? 20 : 45
+    }));
+  };
 
-  onSubmit = e => {
+  const onSubmit = (e) => {
     e.preventDefault();
-
-    const newState = {
-      ...this.state
-    };
+    let newState = { ...state };
 
     newState.discSet.sort((a, b) => b - a);
     newState.targets.sort((a, b) => a - b);
     const targetWeights = [];
 
-    newState.targets.forEach((targetPercentage, index) => {
-      let tW = Math.round(parseInt(newState.PR) * targetPercentage / 100);
-      let pW = tW + (tW % 5 <= 2 ? -1 * tW % 5 : 5 - (tW % 5)); // training approach, above or below approximation; <= 2 goes beyond
-      targetWeights.push(pW);
-      newState.barConfigurations[index] = {
-        percentage: targetPercentage,
-        accuratePercentage: tW,
-        roundPercentage: targetWeights[index],
-        plates: []
-      };
-    });
+    if (isPercentagesCalculation) {
+      newState.targets.forEach((targetPercentage, index) => {
+        let tW = Math.round(parseInt(newState.PR) * targetPercentage / 100);
+        let pW = tW + (tW % 5 <= 2 ? -1 * tW % 5 : 5 - (tW % 5)); // training approach, above or below approximation; <= 2 goes beyond
+        targetWeights.push(pW);
+        newState.barConfigurations[index] = {
+          percentage: targetPercentage,
+          accuratePercentage: tW,
+          roundPercentage: targetWeights[index],
+          plates: []
+        };
+      });
+    } else {
+      // Is a manual weight input
+      newState.targets.forEach((targetWeight, index) => {
+        const tW = Number(targetWeight)
+        let roundedWeight = tW + (tW % 5 <= 2 ? -1 * tW % 5 : 5 - (tW % 5)); // training approach, above or below approximation; <= 2 goes beyond
+        targetWeights.push(roundedWeight);
+        newState.barConfigurations[index] = {
+          percentage: 100,
+          accuratePercentage: targetWeight,
+          roundPercentage: targetWeights[index],
+          plates: []
+        };
+      });
+    }
 
     let finalPlatesTemp = [];
 
@@ -121,7 +124,7 @@ class App extends Component {
       newState.discSet.forEach((plate) => {
         while (targetWeight >= plate) {
           targetWeight -= plate;
-          closestConfigWeight += plate * 2; // Suma dos veces el peso del disco (lado izquierdo y derecho)
+          closestConfigWeight += plate * 2;
           newState.barConfigurations[index].plates.push(plate);
 
           const foundPlateIndex = finalPlatesTemp.indexOf(plate);
@@ -141,7 +144,7 @@ class App extends Component {
       countPlatesKeys[x] = (countPlatesKeys[x] || 0) + 1;
     });
 
-    Object.keys(countPlatesKeys).map((value) => {
+    Object.keys(countPlatesKeys).forEach((value) => {
       newState.plateCounts.push({
         value,
         quantity: countPlatesKeys[value]
@@ -151,56 +154,42 @@ class App extends Component {
     newState.plateCounts.sort((a, b) => a.value - b.value);
 
     newState.saved = true;
-    this.setState(newState);
-  }
+    setState(newState);
+  };
 
-  render() {
-    const { PR,
-      barOptions,
-      selectedBarbellOption,
-      targets,
-      plateCounts,
-      barConfigurations,
-      errors,
-      saved,
-      units // Add units state to render
-    } = this.state;
+  const { PR, barOptions, selectedBarbellOption, targets, plateCounts, barConfigurations, errors, saved, units } = state;
 
-    return (
-      <div className="App">
-        <header className="App-header">
-          Calculadora de Pesos
-        </header>
+  return (
+    <div className="App">
+      <header className="App-header">Calculadora de Pesos</header>
 
-        {
-          saved &&
-          <ResultsPage
-            plateCounts={plateCounts}
-            selectedBarbellOption={selectedBarbellOption}
-            units={units} barConfigurations={barConfigurations}
-            restartCalculation={this.restartCalculation}
-          />
-        }
-
-        {
-          !saved &&
-          <WeightsForm
-            onSubmit={this.onSubmit}
-            PR={PR}
-            handleUnitSwitch={this.handleUnitSwitch}
-            handleTextfield={this.handleTextfield}
-            handlePercentageClick={this.handlePercentageClick}
-            handlePercentageTextfield={this.handlePercentageTextfield}
-            handleSelectChange={this.handleSelectChange}
-            units={units}
-            targets={targets}
-            barOptions={barOptions}
-            errors={errors}
-          />
-        }
-      </div>
-    );
-  }
-}
+      {saved ? (
+        <ResultsPage
+          plateCounts={plateCounts}
+          selectedBarbellOption={selectedBarbellOption}
+          units={units}
+          barConfigurations={barConfigurations}
+          restartCalculation={restartCalculation}
+        />
+      ) : (
+        <WeightsForm
+          onSubmit={onSubmit}
+          PR={PR}
+          handleUnitSwitch={handleUnitSwitch}
+          handleTextfield={handleTextfield}
+          handlePercentageClick={handlePercentageClick}
+          handlePercentageTextfield={handlePercentageTextfield}
+          handleSelectChange={handleSelectChange}
+          units={units}
+          targets={targets}
+          isPercentagesCalculation={isPercentagesCalculation}
+          setIsPercentageCalculation={setIsPercentageCalculation}
+          barOptions={barOptions}
+          errors={errors}
+        />
+      )}
+    </div>
+  );
+};
 
 export default App;

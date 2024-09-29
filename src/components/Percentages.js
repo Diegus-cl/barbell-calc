@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import PercentageItem from './PercentageItem';
 
-const Percentages = ({percentages, onTextChange, onClick}) => {
+const Percentages = ({percentages, onTextChange, onClick, isPercentagesCalculation}) => {
   return (
     <div>
       {
@@ -14,7 +14,9 @@ const Percentages = ({percentages, onTextChange, onClick}) => {
               parentKey={i}
               percentageId={'percentageId_' + i.toString()}
               percentageValue={percentages[i]}
-              onChange={onTextChange} />
+              onChange={onTextChange} 
+              isPercentagesCalculation={isPercentagesCalculation}  
+            />
           );
         })
       }
@@ -22,7 +24,7 @@ const Percentages = ({percentages, onTextChange, onClick}) => {
       <div className="form__field form__field--button">
         <button className="button button--outlined" onClick={onClick}>
             +
-            <span>Agregar Porcentaje</span>
+            <span>Agregar {isPercentagesCalculation ? "Porcentaje" : "Peso" }</span>
         </button>
       </div>
     </div>
