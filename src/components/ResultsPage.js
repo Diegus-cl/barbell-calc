@@ -1,6 +1,6 @@
 import React from "react"
 
-const ResultsPage = ({plateCounts, selectedBarbellOption, units, barConfigurations, restartCalculation}) => {
+const ResultsPage = ({ plateCounts, selectedBarbellOption, units, barConfigurations, restartCalculation, isPercentageCalculation }) => {
 
   return (
     <div className='wrapper wrapper--form'>
@@ -13,11 +13,11 @@ const ResultsPage = ({plateCounts, selectedBarbellOption, units, barConfiguratio
           ))
         }
       </ul>
-      <h2>Configuración de porcentajes</h2>
+      <h2>Configuración de pesos</h2>
       {
         barConfigurations.map((item, index) => (
           <div key={index}>
-            <h3>Levantamiento al {item.percentage}%</h3>
+            <h3>Levantamiento {isPercentageCalculation ? `al ${item.percentage}%` : `#${index + 1}`}</h3>
             {
               item.accuratePercentage !== item.roundPercentage ?
                 <span>

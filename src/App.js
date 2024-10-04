@@ -79,18 +79,17 @@ const App = () => {
     }));
   };
 
-  const onSubmit = (e) => {
-    e.preventDefault();
+  const calculateWeights = (unitType) => {
     let newState = { ...state };
 
-    newState.discSet.sort((a, b) => b - a);
+    newState.discSet = getDiscSet(unitType).sort((a, b) => b - a);
     newState.targets.sort((a, b) => a - b);
     const targetWeights = [];
 
     if (isPercentagesCalculation) {
       newState.targets.forEach((targetPercentage, index) => {
         let tW = Math.round(parseInt(newState.PR) * targetPercentage / 100);
-        let pW = tW + (tW % 5 <= 2 ? -1 * tW % 5 : 5 - (tW % 5)); // training approach, above or below approximation; <= 2 goes beyond
+        let pW = tW + (tW % 5 <= 2 ? -1 * tW % 5 : 5 - (tW % 5)); // round to nearest 5
         targetWeights.push(pW);
         newState.barConfigurations[index] = {
           percentage: targetPercentage,
@@ -100,10 +99,9 @@ const App = () => {
         };
       });
     } else {
-      // Is a manual weight input
       newState.targets.forEach((targetWeight, index) => {
-        const tW = Number(targetWeight)
-        let roundedWeight = tW + (tW % 5 <= 2 ? -1 * tW % 5 : 5 - (tW % 5)); // training approach, above or below approximation; <= 2 goes beyond
+        const tW = Number(targetWeight);
+        let roundedWeight = tW + (tW % 5 <= 2 ? -1 * tW % 5 : 5 - (tW % 5)); // round to nearest 5
         targetWeights.push(roundedWeight);
         newState.barConfigurations[index] = {
           percentage: 100,
@@ -157,6 +155,11 @@ const App = () => {
     setState(newState);
   };
 
+  const onSubmit = (e, unitType = state.units) => {
+    e.preventDefault();
+    calculateWeights(unitType);
+  };
+  
   const { PR, barOptions, selectedBarbellOption, targets, plateCounts, barConfigurations, errors, saved, units } = state;
 
   return (
@@ -170,6 +173,7 @@ const App = () => {
           units={units}
           barConfigurations={barConfigurations}
           restartCalculation={restartCalculation}
+          isPercentageCalculation={isPercentagesCalculation}
         />
       ) : (
         <WeightsForm
