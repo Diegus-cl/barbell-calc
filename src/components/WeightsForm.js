@@ -21,7 +21,7 @@ const WeightsForm = ({ onSubmit, PR, handleUnitSwitch, handleTextfield, handlePe
       </div>
       <section className="form">
         <div className='wrapper--form'>
-          <form>
+          <div>
             {/* <p>Elige el modo:</p> */}
             <h2 style={{ display: "flex", justifyContent: "space-between" }}>
               <span className={"select-mode " + (isPercentagesCalculation ? "active" : "")} onClick={() => setIsPercentageCalculation(true)}>Porcentajes</span>
@@ -73,21 +73,21 @@ const WeightsForm = ({ onSubmit, PR, handleUnitSwitch, handleTextfield, handlePe
             {/* This one will calculate in the current unit */}
             <div className='form__field'>
               <Button
-                type="submit"
+                type="button"
                 label={`Calcular en ${units === "KG" ? "kilos" : "libras"}`}
-                onClick={(e) => onSubmit(e, units === "LB" ? "LB" : "KG")}
+                onClick={(e) => onSubmit(e, units === "KG" ? "KG" : "LB")}
               />
             </div>
 
             {/* and this one in the opposite unit */}
             <div className='form__field'>
               <Button
-                type="submit"
-                label={`Calcular en ${units === "LB" ? "kilos" : "libras"}`} 
+                type="button"
+                label={`Calcular en ${units === "LB" ? "kilos" : "libras"}`}
                 onClick={(e) => onSubmit(e, units === "LB" ? "KG" : "LB")}
               />
             </div>
-          </form>
+          </div>
         </div>
       </section>
     </div>

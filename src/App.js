@@ -80,86 +80,138 @@ const App = () => {
   };
 
   const calculateWeights = (unitType) => {
+    // wrap in setState to make sure I have latest state
+    setState((prevState) => {
+      let newState = { ...prevState };
+
+      newState.discSet = getDiscSet(unitType).sort((a, b) => b - a);
+      newState.targets.sort((a, b) => a - b);
+      const targetWeights = [];
+
+      if (isPercentagesCalculation) {
+        newState.targets.forEach((targetPercentage, index) => {
+          let tW = Math.round(parseInt(newState.PR) * targetPercentage / 100);
+          let pW = tW + (tW % 5 <= 2 ? -1 * tW % 5 : 5 - (tW % 5)); // round to nearest 5
+          targetWeights.push(pW);
+          newState.barConfigurations[index] = {
+            percentage: targetPercentage,
+            accuratePercentage: tW,
+            roundPercentage: targetWeights[index],
+            plates: []
+          };
+        });
+      } else {
+        newState.targets.forEach((targetWeight, index) => {
+          const tW = Number(targetWeight);
+          let roundedWeight = tW + (tW % 5 <= 2 ? -1 * tW % 5 : 5 - (tW % 5)); // round to nearest 5
+          targetWeights.push(roundedWeight);
+          newState.barConfigurations[index] = {
+            percentage: 100,
+            accuratePercentage: targetWeight,
+            roundPercentage: targetWeights[index],
+            plates: []
+          };
+        });
+      }
+
+      let finalPlatesTemp = [];
+
+      targetWeights.forEach((tW, index) => {
+        finalPlatesTemp = [...newState.finalPlateSet];
+        let targetWeight = (tW - parseInt(newState.selectedBarbellOption)) / 2;
+
+        let closestConfigWeight = parseInt(newState.selectedBarbellOption);
+        newState.discSet.forEach((plate) => {
+          while (targetWeight >= plate) {
+            targetWeight -= plate;
+            closestConfigWeight += plate * 2;
+            newState.barConfigurations[index].plates.push(plate);
+
+            const foundPlateIndex = finalPlatesTemp.indexOf(plate);
+            if (foundPlateIndex > -1) {
+              finalPlatesTemp.splice(foundPlateIndex, 1);
+            } else {
+              newState.finalPlateSet.push(plate);
+            }
+          }
+        });
+
+        newState.barConfigurations[index].closestConfig = closestConfigWeight;
+      });
+
+      let countPlatesKeys = [];
+      newState.finalPlateSet.forEach((x) => {
+        countPlatesKeys[x] = (countPlatesKeys[x] || 0) + 1;
+      });
+
+      Object.keys(countPlatesKeys).forEach((value) => {
+        newState.plateCounts.push({
+          value,
+          quantity: countPlatesKeys[value]
+        });
+      });
+
+      newState.plateCounts.sort((a, b) => a.value - b.value);
+
+      newState.saved = true;
+      return newState;
+    })
+  };
+
+  const convertToLB = () => {
     let newState = { ...state };
 
-    newState.discSet = getDiscSet(unitType).sort((a, b) => b - a);
-    newState.targets.sort((a, b) => a - b);
-    const targetWeights = [];
+    // Convertir todos los pesos a libras (1 KG = 2.20462 LB)
+    newState.PR = newState.PR * 2.20462;
 
-    if (isPercentagesCalculation) {
-      newState.targets.forEach((targetPercentage, index) => {
-        let tW = Math.round(parseInt(newState.PR) * targetPercentage / 100);
-        let pW = tW + (tW % 5 <= 2 ? -1 * tW % 5 : 5 - (tW % 5)); // round to nearest 5
-        targetWeights.push(pW);
-        newState.barConfigurations[index] = {
-          percentage: targetPercentage,
-          accuratePercentage: tW,
-          roundPercentage: targetWeights[index],
-          plates: []
-        };
-      });
-    } else {
-      newState.targets.forEach((targetWeight, index) => {
-        const tW = Number(targetWeight);
-        let roundedWeight = tW + (tW % 5 <= 2 ? -1 * tW % 5 : 5 - (tW % 5)); // round to nearest 5
-        targetWeights.push(roundedWeight);
-        newState.barConfigurations[index] = {
-          percentage: 100,
-          accuratePercentage: targetWeight,
-          roundPercentage: targetWeights[index],
-          plates: []
-        };
-      });
+    if (!isPercentagesCalculation) {
+      newState.targets = newState.targets.map(target => target * 2.20462);
     }
 
-    let finalPlatesTemp = [];
-
-    targetWeights.forEach((tW, index) => {
-      finalPlatesTemp = [...newState.finalPlateSet];
-      let targetWeight = (tW - parseInt(newState.selectedBarbellOption)) / 2;
-
-      let closestConfigWeight = parseInt(newState.selectedBarbellOption);
-      newState.discSet.forEach((plate) => {
-        while (targetWeight >= plate) {
-          targetWeight -= plate;
-          closestConfigWeight += plate * 2;
-          newState.barConfigurations[index].plates.push(plate);
-
-          const foundPlateIndex = finalPlatesTemp.indexOf(plate);
-          if (foundPlateIndex > -1) {
-            finalPlatesTemp.splice(foundPlateIndex, 1);
-          } else {
-            newState.finalPlateSet.push(plate);
-          }
-        }
-      });
-
-      newState.barConfigurations[index].closestConfig = closestConfigWeight;
-    });
-
-    let countPlatesKeys = [];
-    newState.finalPlateSet.forEach((x) => {
-      countPlatesKeys[x] = (countPlatesKeys[x] || 0) + 1;
-    });
-
-    Object.keys(countPlatesKeys).forEach((value) => {
-      newState.plateCounts.push({
-        value,
-        quantity: countPlatesKeys[value]
-      });
-    });
-
-    newState.plateCounts.sort((a, b) => a.value - b.value);
-
-    newState.saved = true;
+    // suppose 20kg bar is equivalent to 45lbs one and 15kg bar to the 35lbs one (improvement needed)
+    newState.selectedBarbellOption = state.selectedBarbellOption === 20 ? 45 : 35
     setState(newState);
   };
 
-  const onSubmit = (e, unitType = state.units) => {
-    e.preventDefault();
-    calculateWeights(unitType);
+  const convertToKG = () => {
+    let newState = { ...state };
+
+    // Convertir todos los pesos a kilos (1 LB = 0.453592 KG)
+    newState.PR = newState.PR * 0.453592;
+
+    if (!isPercentagesCalculation) {
+      newState.targets = newState.targets.map(target => target * 0.453592);
+    }
+
+    // suppose 20kg bar is equivalent to 45lbs one and 15kg bar to the 35lbs one (improvement needed)
+    newState.selectedBarbellOption = state.selectedBarbellOption === 45 ? 20 : 15
+
+    setState(newState);
   };
-  
+
+  const processWeight = (targetUnit) => {
+    if (state.units === targetUnit) {
+      return;
+    }
+
+    // Aquí ejecutas la conversión dependiendo de la unidad target
+    if (targetUnit === "LB") {
+      convertToLB();
+    } else if (targetUnit === "KG") {
+      convertToKG();
+    }
+
+    setState((prevState) => ({ ...prevState, units: targetUnit }));
+  }
+
+  const onSubmit = (e, targetUnit) => {
+    e.preventDefault();
+
+    processWeight(targetUnit)
+
+    calculateWeights(targetUnit)
+  };
+
   const { PR, barOptions, selectedBarbellOption, targets, plateCounts, barConfigurations, errors, saved, units } = state;
 
   return (
