@@ -83,6 +83,7 @@ const WeightsForm = ({ onSubmit, PR, handleUnitSwitch, handleTextfield, handlePe
             <div className='form__field'>
               <Button
                 type="button"
+                outlined={true}
                 label={`Calcular en ${units === "LB" ? "kilos" : "libras"}`}
                 onClick={(e) => onSubmit(e, units === "LB" ? "KG" : "LB")}
               />

@@ -1,11 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-const Button = ({label, className, disabled, progress, onClick}) => {
-  const wrapperClass = progress ? `${className} button-progress` : className;
+const Button = ({label, className, disabled, outlined, onClick}) => {
+  const wrapperClass = outlined ? `${className} outlined` : className;
 
   return (
-    <button type="submit" className={wrapperClass} disabled={disabled || progress} onClick={onClick}>
+    <button type="submit" className={wrapperClass} disabled={disabled} onClick={onClick}>
       {label}
     </button>
   );
