@@ -226,6 +226,7 @@ const App = () => {
           barConfigurations={barConfigurations}
           restartCalculation={restartCalculation}
           isPercentageCalculation={isPercentagesCalculation}
+          PR={PR}
         />
       ) : (
         <WeightsForm

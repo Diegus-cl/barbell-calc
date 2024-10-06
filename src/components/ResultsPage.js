@@ -1,9 +1,10 @@
 import React from "react"
 
-const ResultsPage = ({ plateCounts, selectedBarbellOption, units, barConfigurations, restartCalculation, isPercentageCalculation }) => {
+const ResultsPage = ({ plateCounts, selectedBarbellOption, units, barConfigurations, restartCalculation, isPercentageCalculation, PR }) => {
 
   return (
     <div className='wrapper wrapper--form'>
+      {PR && <h2 className="pr-title">PR: {Math.round(PR)}{units}</h2>}
       <h2>Equipos necesarios</h2>
       <ul>
         <li key={-1}>Barra de {selectedBarbellOption} {units}</li>

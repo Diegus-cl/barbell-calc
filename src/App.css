@@ -34,6 +34,14 @@ LAYOUT
   padding: 0.4 rem;
 }
 
+.pr-title {
+  border: 3px solid #4a4a4a;
+  border-radius: 10px;
+  padding: 1rem;
+  width: fit-content;
+  color: #56d7ff;
+}
+
 h2 {
   font-weight: normal;
   font-size: 1.8rem;
