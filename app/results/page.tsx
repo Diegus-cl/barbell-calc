@@ -11,11 +11,13 @@ interface SearchParams {
   [key: string]: string | undefined;
 }
 
+interface PageProps {
+  searchParams: SearchParams;
+}
+
 export default function Results({
   searchParams,
-}: {
-  searchParams: SearchParams;
-}) {
+}: PageProps) {
   const units = searchParams.units as "KG" | "LB";
   const sourceUnits = searchParams.sourceUnits as "KG" | "LB";
   const barWeight = parseFloat(searchParams.barWeight);
