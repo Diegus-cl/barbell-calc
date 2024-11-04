@@ -14,7 +14,6 @@ import {
   FormMessage,
 } from "@/components/ui/form"
 import { Input } from "@/components/ui/input"
-import { Switch } from "@/components/ui/switch"
 import {
   Select,
   SelectContent,
@@ -25,7 +24,6 @@ import {
 import { Plus } from "lucide-react"
 import {
   Tabs,
-  TabsContent,
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs"
@@ -34,7 +32,7 @@ import { useRouter } from "next/navigation"
 
 const createFormSchema = (isPercentagesCalculation: boolean) => {
   return z.object({
-    PR: isPercentagesCalculation 
+    PR: isPercentagesCalculation
       ? z.string().min(1, { message: "PR is required" })
       : z.string().optional(),
     barWeight: z.string().min(1, { message: "Bar weight is required" }),
@@ -61,21 +59,21 @@ export function WeightCalculatorForm() {
     return (values: z.infer<ReturnType<typeof createFormSchema>>) => {
       const searchParams = new URLSearchParams()
       const targetUnits = alternateUnit ? (units === "KG" ? "LB" : "KG") : units
-      
+
       // Convert string values to numbers before sending
       const numericValues = values.percentages
         .filter(val => val !== "") // Filter out empty values
         .map(val => parseFloat(val))
-      
+
       searchParams.set('units', targetUnits)
       searchParams.set('barWeight', values.barWeight)
       searchParams.set('isPercentages', isPercentagesCalculation.toString())
       searchParams.set('sourceUnits', units) // Add source units for proper conversion
-      
+
       if (isPercentagesCalculation && values.PR) {
         searchParams.set('PR', values.PR)
       }
-      
+
       numericValues.forEach((value, index) => {
         searchParams.set(`value${index}`, value.toString())
       })
@@ -111,8 +109,8 @@ export function WeightCalculatorForm() {
         </TabsList>
       </Tabs>
 
-      <Tabs 
-        defaultValue="percentages" 
+      <Tabs
+        defaultValue="percentages"
         onValueChange={handleCalculationTypeChange}
       >
         <TabsList className="grid w-full grid-cols-2 mb-4">
@@ -200,16 +198,16 @@ export function WeightCalculatorForm() {
           </Button>
 
           <div className="space-y-4">
-            <Button 
-              type="button" 
+            <Button
+              type="button"
               className="w-full"
               onClick={form.handleSubmit(onSubmit(false))}
             >
               Calcular en {units}
             </Button>
-            <Button 
-              type="button" 
-              variant="outline" 
+            <Button
+              type="button"
+              variant="outline"
               className="w-full"
               onClick={form.handleSubmit(onSubmit(true))}
             >

@@ -25,7 +25,7 @@ export default function Results({
   const values = Object.entries(searchParams)
     .filter(([key]) => key.startsWith('value'))
     .sort((a, b) => a[0].localeCompare(b[0]))
-    .map(([_, value]) => parseFloat(value ?? '0'));
+    .map(([_key, value]) => parseFloat(value ?? '0'));
 
   const configurations = calculatePlateConfigurations({
     PR,
