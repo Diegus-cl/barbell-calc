@@ -16,8 +16,19 @@ interface CalculationParams {
 }
 
 const AVAILABLE_PLATES = {
-  KG: [25, 20, 15, 10, 5, 2.5, 1.25, 0.5],
+  KG: [25, 20, 15, 5, 2.5, 1.25, 0.5],
   LB: [45, 35, 25, 10, 5, 2.5],
+}
+
+const EQUIVALENT_BARBELLS = {
+  KG: {
+    "45": 20,
+    "35": 15,
+  },
+  LB: {
+    "20": 45,
+    "15": 35,
+  }
 }
 
 const CONVERSION_RATES = {
@@ -40,8 +51,11 @@ export function calculatePlateConfigurations({
     ? (sourceUnits === "KG" ? CONVERSION_RATES.KG_TO_LB : CONVERSION_RATES.LB_TO_KG)
     : 1
 
+  const equivalentBarWeight = shouldConvert
+    ? EQUIVALENT_BARBELLS[units][barWeight.toString() as keyof (typeof EQUIVALENT_BARBELLS)[typeof units]]
+    : barWeight
+
   const convertedPR = PR ? PR * conversionRate : undefined
-  const convertedBarWeight = barWeight * conversionRate
   const convertedValues = isPercentages 
     ? values 
     : values.map(v => v * conversionRate)
@@ -56,9 +70,10 @@ export function calculatePlateConfigurations({
       targetWeight = value
     }
 
-    const weightPerSide = (targetWeight - convertedBarWeight) / 2
+    const weightPerSide = (targetWeight - equivalentBarWeight) / 2
+
     const plateConfiguration = calculatePlates(weightPerSide, plates)
-    const actualTotalWeight = plateConfiguration.totalWeight * 2 + convertedBarWeight
+    const actualTotalWeight = plateConfiguration.totalWeight * 2 + equivalentBarWeight
 
     return {
       percentage: isPercentages ? value : undefined,
